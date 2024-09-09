@@ -6,9 +6,9 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 urls = {
-    'https://amzn.asia/d/1LUfvbu',
+    'https://amzn.asia/d/ciyByNY',
     'https://amzn.asia/d/4sX4XNg',
-    'https://amzn.asia/d/70ppz70'
+    'https://amzn.asia/d/h1t8Vp9'
 }
 filename = 'product_info.csv'
 
@@ -24,7 +24,11 @@ for url in urls:
     try:
         product_name = driver.find_element(By.ID, "productTitle").text
         price = driver.find_element(By.CLASS_NAME, "a-price-whole").text
-        evaluation = driver.find_element(By.CLASS_NAME, "a-size-base.a-color-base").text
+        evaluations = driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")
+        if len(evaluations) >= 2:
+            evaluation = evaluations[1].text  # 2番目の要素を取得
+        else:
+            evaluation = "評価情報が見つかりません"
         review = driver.find_element(By.ID, "acrCustomerReviewText").text.replace("個の評価", "")
         description = driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "")
 
