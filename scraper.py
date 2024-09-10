@@ -38,7 +38,7 @@ class ProductScraper:
             evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")
             evaluation = evaluations[1].text if len(evaluations) >= 2 else "評価情報が見つかりません"
             review = self.driver.find_element(By.ID, "acrCustomerReviewText").text.replace("個の評価", "")
-            description = self.driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "")
+            description = self.driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "").replace("この商品について", "")
             
             current_url = self.driver.current_url
             product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]
