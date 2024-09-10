@@ -13,18 +13,17 @@ class ProductScraper:
         self.driver = self.setup_driver()
         self.csv_writer = CSV(self.filename)
         
-        # 既存のCSVファイルがあれば削除する
         if os.path.exists(self.filename):
-            os.remove(self.filename)
+            os.remove(self.filename)  # 既存のCSVファイルがあれば削除する
     
     def setup_driver(self):
-        chrome_options = Options()
-        # chrome_options.add_argument("--headless")  # ブラウザを非表示にする
-        chrome_options.add_argument("--ignore-certificate-errors")  # 証明書エラーを無視する
-        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        CHROME_OPTIONS = Options()
+        # CHROME_OPTIONS.add_argument("--headless")  # ブラウザを非表示にする
+        CHROME_OPTIONS.add_argument("--ignore-certificate-errors")  # 証明書エラーを無視する
+        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=CHROME_OPTIONS)
     
     def open_new_tab(self, url):
-        self.driver.execute_script(f"window.open('{url}', '_blank');")
+        self.driver.execute_script(f"window.open('{url}', '_blank');")  # 新しいタブで開く
         self.driver.switch_to.window(self.driver.window_handles[-1])  # 最後のタブに切り替え
     
     def close_current_tab(self):
@@ -33,18 +32,18 @@ class ProductScraper:
     
     def check_product_info(self):
         try:
-            product_name = self.driver.find_element(By.ID, "productTitle").text
-            price = self.driver.find_element(By.CLASS_NAME, "a-price-whole").text
-            evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")
+            product_name = self.driver.find_element(By.ID, "productTitle").text  # 商品名
+            price = self.driver.find_element(By.CLASS_NAME, "a-price-whole").text  # 価格
+            evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")  # 評価
             evaluation = evaluations[1].text if len(evaluations) >= 2 else "評価情報が見つかりません"
-            review = self.driver.find_element(By.ID, "acrCustomerReviewText").text.replace("個の評価", "")
-            description = self.driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "").replace("この商品について", "")
+            review = self.driver.find_element(By.ID, "acrCustomerReviewText").text.replace("個の評価", "")  # 評価数
+            description = self.driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "").replace("この商品について", "")  # 商品説明
             
-            current_url = self.driver.current_url
-            product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]
-            self.driver.get(f"https://sakura-checker.jp/itemsearch/?word={product_id}")
-            sakura_evaluation = self.driver.find_element(By.CLASS_NAME, "item-rating").text.replace("/5", "")
-            
+            current_url = self.driver.current_url  # 現在のURLを取得する
+            product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]  # 商品ID（？）
+            self.driver.get(f"https://sakura-checker.jp/itemsearch/?word={product_id}")  # サクラチェッカーで商品のページを開く
+            sakura_evaluation = self.driver.find_element(By.CLASS_NAME, "item-rating").text.replace("/5", "")  # サクラチェッカー内での評価
+
             header = ["商品名", "価格", "評価", "評価数", "サクラ評価", "商品説明"]
             data = [product_name, price, evaluation, review, sakura_evaluation, description]
             self.csv_writer.write_data(header, data)
@@ -53,14 +52,14 @@ class ProductScraper:
             print(f"エラーが発生しました: {e}")
     
     def scrape(self, search_url):
-        self.driver.get(search_url)
-        url_buttons = self.driver.find_elements(By.CSS_SELECTOR, ".button.is-primary.is-small")
-        urls = [button.get_attribute("href") for button in url_buttons if button.get_attribute("href")]
+        self.driver.get(search_url)  # serach_urlのリンクに飛ぶ
+        url_buttons = self.driver.find_elements(By.CSS_SELECTOR, ".button.is-primary.is-small")  # 商品の詳細ボタンを取得する
+        urls = [button.get_attribute("href") for button in url_buttons if button.get_attribute("href")]  # 詳細ボタンのURLを取得する
         
         for url in urls:
-            self.open_new_tab(url)
+            self.open_new_tab(url)  # 新しいタブでURLを開く
             sleep(1)
-            self.check_product_info()
+            self.check_product_info()  # 商品情報のチェックする
             self.close_current_tab()  # タブを閉じる
     
     def quit(self):
