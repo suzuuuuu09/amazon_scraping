@@ -76,6 +76,6 @@ words = [
 
 scraper = ProductScraper()
 for word in words:
-    for i in range(aggregation_category / 10):
+    for i in range(int(aggregation_category / 10)):
         scraper.scrape(f"https://sakura-checker.jp/itemsearch/?page={i + 1}&sort=amazon&word={word}")
 scraper.quit()
