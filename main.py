@@ -1,7 +1,7 @@
 from scraper import ProductScraper
 
 # 10の倍数のみ
-aggregation_category = 300
+aggregation_category = 150
 
 words = [
     "デジタルカメラ",

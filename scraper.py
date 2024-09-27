@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import os
 
 class ProductScraper:
@@ -32,18 +34,42 @@ class ProductScraper:
     
     def check_product_info(self):
         try:
-            product_name = self.driver.find_element(By.ID, "productTitle").text  # 商品名
-            price = self.driver.find_element(By.CLASS_NAME, "a-price-whole").text  # 価格
-            evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")  # 評価
-            evaluation = evaluations[1].text
-            review = self.driver.find_element(By.ID, "acrCustomerReviewText").text.replace("個の評価", "")  # 評価数
-            description = self.driver.find_element(By.ID, "feature-bullets").text.replace("› もっと見る", "").replace("この商品について", "")  # 商品説明
-            company = self.driver.find_element(By.ID, "bylineInfo").text.replace("のストアを表示", "")
+            # 商品名が表示されるまで待機
+            product_name = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "productTitle"))
+            ).text  # 商品名
 
-            current_url = self.driver.current_url  # 現在のURLを取得する
-            product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]  # 商品ID（？）
-            self.driver.get(f"https://sakura-checker.jp/itemsearch/?word={product_id}")  # サクラチェッカーで商品のページを開く
-            sakura_evaluation = self.driver.find_element(By.CLASS_NAME, "item-rating").text.replace("/5", "")  # サクラチェッカー内での評価
+            # 価格が表示されるまで待機
+            price = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "a-price-whole"))
+            ).text  # 価格
+            
+            evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")
+            evaluation = evaluations[1].text if len(evaluations) > 1 else 0
+            
+            # 評価数が表示されるまで待機
+            review = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "acrCustomerReviewText"))
+            ).text.replace("個の評価", "")  # 評価数
+            
+            # 商品説明が表示されるまで待機
+            description = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "feature-bullets"))
+            ).text.replace("› もっと見る", "").replace("この商品について", "")  # 商品説明
+            
+            # 企業名が表示されるまで待機
+            company = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "bylineInfo"))
+            ).text.replace("のストアを表示", "")  # 企業名
+
+            current_url = self.driver.current_url  # 現在のURLを取得
+            product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]  # 商品ID
+            self.driver.get(f"https://sakura-checker.jp/itemsearch/?word={product_id}")  # サクラチェッカーを開く
+            
+            # サクラチェッカー内の評価が表示されるまで待機
+            sakura_evaluation = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "item-rating"))
+            ).text.replace("/5", "")  # サクラ評価
 
             header = ["商品名", "企業名", "価格", "評価", "評価数", "サクラ評価", "商品説明"]
             data = [product_name, company, price, evaluation, review, sakura_evaluation, description]
