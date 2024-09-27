@@ -44,9 +44,18 @@ class ProductScraper:
                 EC.presence_of_element_located((By.CLASS_NAME, "a-price-whole"))
             ).text  # 価格
             
+            # evaluation_bar = self.driver.find_element(By.CLASS_NAME, "a-popover-trigger.a-declarative")
             evaluations = self.driver.find_elements(By.CLASS_NAME, "a-size-base.a-color-base")
-            evaluation = evaluations[1].text if len(evaluations) > 1 else 0
-            
+            for i in range(len(evaluations)):
+                value_str = evaluations[i].text
+                try:
+                    value_str = float(value_str)
+                    evaluation = value_str
+                except:
+                    continue
+
+            # evaluation = evaluations[1].text if len(evaluations) > 1 else 0
+
             # 評価数が表示されるまで待機
             review = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, "acrCustomerReviewText"))
@@ -77,6 +86,7 @@ class ProductScraper:
             header = ["商品名", "企業名", "価格", "評価", "評価数", "サクラ評価", "商品説明"]
             data = [product_name, company, price, evaluation, review, sakura_evaluation, description]
             self.csv_writer.write_data(header, data)
+            # print(f"{product_name}, {company}, {price}, {evaluation}, {review}, {sakura_evaluation}, {description}")
         
         except Exception as e:
             print(f"エラーが発生しました: {e}")
