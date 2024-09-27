@@ -66,15 +66,17 @@ class ProductScraper:
             product_id = current_url.replace("https://www.amazon.co.jp/gp/product/", "")[:10]  # 商品ID
             self.driver.get(f"https://sakura-checker.jp/itemsearch/?word={product_id}")  # サクラチェッカーを開く
             
-            # サクラチェッカー内の評価が表示されるまで待機
-            sakura_evaluation = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "item-rating"))
-            ).text.replace("/5", "")  # サクラ評価
+            try:
+                # サクラチェッカー内の評価が表示されるまで待機
+                sakura_evaluation = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "item-rating"))
+                ).text.replace("/5", "")  # サクラ評価
+            except Exception:
+                sakura_evaluation = 0
 
             header = ["商品名", "企業名", "価格", "評価", "評価数", "サクラ評価", "商品説明"]
             data = [product_name, company, price, evaluation, review, sakura_evaluation, description]
             self.csv_writer.write_data(header, data)
-            print(company)
         
         except Exception as e:
             print(f"エラーが発生しました: {e}")
