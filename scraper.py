@@ -15,8 +15,8 @@ class ProductScraper:
         self.driver = self.setup_driver()
         self.csv_writer = CSV(self.filename)
         
-        if os.path.exists(self.filename):
-            os.remove(self.filename)  # 既存のCSVファイルがあれば削除する
+        # if os.path.exists(self.filename):
+        #     os.remove(self.filename)  # 既存のCSVファイルがあれば削除する
     
     def setup_driver(self):
         CHROME_OPTIONS = Options()
@@ -51,6 +51,7 @@ class ProductScraper:
                 try:
                     value_str = float(value_str)
                     evaluation = value_str
+                    break
                 except:
                     continue
 
