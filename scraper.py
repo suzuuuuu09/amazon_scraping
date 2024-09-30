@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 
 class ProductScraper:
-    def __init__(self, filename='product_info.csv'):
+    def __init__(self, filename='data/product_info.csv'):
         self.filename = filename
         self.driver = self.setup_driver()
         self.csv_writer = CSV(self.filename)
@@ -51,7 +51,6 @@ class ProductScraper:
                 try:
                     value_str = float(value_str)
                     evaluation = value_str
-                    break
                 except:
                     continue
 
